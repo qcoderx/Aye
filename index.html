@@ -156,8 +156,12 @@
         let totalProgress = 0;
         const models = ['man.glb', 'lungs.glb', 'veins.glb'];
         const audio = ['keyboard.mp3'];
+        const icons = [
+            'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap'
+        ];
         const loadedModels = [];
         const loadedAudio = [];
+        const loadedIcons = [];
         let videoLoaded = false;
         
         const statusMessages = [
@@ -204,6 +208,20 @@
             });
         }
         
+        async function loadIcons(url) {
+            return new Promise((resolve, reject) => {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = url;
+                link.onload = () => {
+                    loadedIcons.push(link);
+                    resolve();
+                };
+                link.onerror = reject;
+                document.head.appendChild(link);
+            });
+        }
+        
         async function loadModel(url, index) {
             return new Promise((resolve, reject) => {
                 loader.load(
@@ -232,10 +250,17 @@
                 await loadVideo('backvid.mp4');
                 updateProgress(5);
                 
+                // Load icons
+                status.textContent = 'Loading interface icons...';
+                for (let i = 0; i < icons.length; i++) {
+                    await loadIcons(icons[i]);
+                }
+                updateProgress(8);
+                
                 // Load audio
                 status.textContent = 'Loading audio assets...';
                 await loadAudio('keyboard.mp3');
-                updateProgress(10);
+                updateProgress(12);
                 
                 // Load 3D models
                 for (let i = 0; i < models.length; i++) {
