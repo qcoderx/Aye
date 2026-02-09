@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Titan: Normalized & Filled</title>
     <style> 
         body { margin: 0; background-color: #050505; overflow: hidden; } 
@@ -252,8 +253,9 @@
             pivot.position.sub(scaledCenter);
 
             // 5. FIT TO SCREEN (Relative Size)
+            const isMobile = window.innerWidth < 768;
             const vFOV = THREE.MathUtils.degToRad(camera.fov);
-            const dist = (TARGET_HEIGHT / 2) / Math.tan(vFOV / 2);
+            const dist = isMobile ? (TARGET_HEIGHT / 2) / Math.tan(vFOV / 2) * 1.8 : (TARGET_HEIGHT / 2) / Math.tan(vFOV / 2);
 
             camera.position.set(0, 0, -dist); 
             

@@ -53,17 +53,17 @@ export class AiyeUI {
             .quota-warning { background: rgba(255,165,0,0.2); border: 1px solid #FFA500; padding: 10px; border-radius: 5px; margin: 10px 0; }
             
             /* Medical Vials Bar */
-            #vials-bar { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); background: rgba(5,5,5,0.9); border: 2px solid #2E8CE0; border-radius: 15px; padding: 20px 10px; backdrop-filter: blur(10px); }
-            .vial-item { font-size: 40px; margin: 15px 0; cursor: grab; transition: all 0.3s; position: relative; }
+            #vials-bar { position: fixed; right: clamp(10px, 2vw, 20px); top: 50%; transform: translateY(-50%); background: rgba(5,5,5,0.9); border: 2px solid #2E8CE0; border-radius: 15px; padding: clamp(15px, 3vw, 20px) clamp(8px, 2vw, 10px); backdrop-filter: blur(10px); }
+            .vial-item { font-size: clamp(32px, 8vw, 40px); margin: clamp(10px, 2.5vw, 15px) 0; cursor: grab; transition: all 0.3s; position: relative; }
             .vial-item:hover { transform: scale(1.2); filter: drop-shadow(0 0 10px #2E8CE0); }
             .vial-item:active { cursor: grabbing; }
-            .vial-tooltip { position: absolute; right: 60px; top: 50%; transform: translateY(-50%); background: rgba(46,140,224,0.95); padding: 8px 12px; border-radius: 5px; white-space: nowrap; font-size: 12px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+            .vial-tooltip { position: absolute; right: clamp(50px, 12vw, 60px); top: 50%; transform: translateY(-50%); background: rgba(46,140,224,0.95); padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2.5vw, 12px); border-radius: 5px; white-space: nowrap; font-size: clamp(11px, 2.8vw, 12px); opacity: 0; pointer-events: none; transition: opacity 0.3s; }
             .vial-item:hover .vial-tooltip { opacity: 1; }
             
             /* Organ Hover Info */
-            #organ-info { position: fixed; left: 20px; top: 50%; transform: translateY(-50%); background: rgba(5,5,5,0.95); border: 2px solid #2E8CE0; border-radius: 10px; padding: 20px; max-width: 300px; backdrop-filter: blur(10px); display: none; }
-            #organ-info h3 { margin: 0 0 10px 0; color: #2E8CE0; font-size: 18px; }
-            #organ-info p { margin: 5px 0; font-size: 13px; line-height: 1.6; }
+            #organ-info { position: fixed; left: clamp(10px, 2vw, 20px); top: 50%; transform: translateY(-50%); background: rgba(5,5,5,0.95); border: 2px solid #2E8CE0; border-radius: 10px; padding: clamp(15px, 3vw, 20px); max-width: clamp(250px, 60vw, 300px); backdrop-filter: blur(10px); display: none; }
+            #organ-info h3 { margin: 0 0 10px 0; color: #2E8CE0; font-size: clamp(16px, 4vw, 18px); }
+            #organ-info p { margin: 5px 0; font-size: clamp(12px, 3vw, 13px); line-height: 1.6; }
             @keyframes typing { from { width: 0; } to { width: 100%; } }
             .typing-text { overflow: hidden; white-space: nowrap; animation: typing 2s steps(40); }
         `;
