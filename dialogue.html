@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Aiye - Introduction</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -30,23 +31,23 @@
             left: 0;
             width: 100%;
             background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.7));
-            padding: clamp(20px, 5vw, 40px);
+            padding: clamp(15px, 4vw, 40px);
             z-index: 10;
             border-top: 3px solid #2E8CE0;
         }
         
         .character-name {
-            font-size: clamp(18px, 5vw, 24px);
+            font-size: clamp(16px, 4.5vw, 24px);
             color: #00FF88;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
         }
         
         .dialogue-text {
-            font-size: clamp(16px, 4vw, 20px);
+            font-size: clamp(14px, 4vw, 20px);
             color: #fff;
-            line-height: 1.8;
-            min-height: clamp(80px, 20vw, 120px);
+            line-height: 1.6;
+            min-height: clamp(60px, 15vh, 120px);
             max-width: 900px;
         }
         
@@ -66,13 +67,13 @@
         
         .skip-button {
             position: fixed;
-            top: clamp(15px, 3vw, 30px);
-            right: clamp(15px, 3vw, 30px);
+            top: clamp(12px, 3vw, 30px);
+            right: clamp(12px, 3vw, 30px);
             background: rgba(46, 140, 224, 0.2);
             border: 2px solid #2E8CE0;
             color: #fff;
-            padding: clamp(8px, 2vw, 12px) clamp(15px, 4vw, 30px);
-            font-size: clamp(14px, 3.5vw, 16px);
+            padding: clamp(6px, 1.5vw, 12px) clamp(12px, 3vw, 30px);
+            font-size: clamp(12px, 3vw, 16px);
             font-family: 'Courier New', monospace;
             cursor: pointer;
             border-radius: 5px;
@@ -87,26 +88,26 @@
         
         .character-portrait {
             position: fixed;
-            bottom: clamp(180px, 35vw, 250px);
-            width: clamp(80px, 20vw, 150px);
-            height: clamp(80px, 20vw, 150px);
+            bottom: clamp(130px, 25vh, 250px);
+            width: clamp(60px, 15vw, 150px);
+            height: clamp(60px, 15vw, 150px);
             border-radius: 50%;
-            border: 3px solid #2E8CE0;
+            border: 2px solid #2E8CE0;
             background: rgba(0, 0, 0, 0.8);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: clamp(32px, 10vw, 60px);
+            font-size: clamp(24px, 8vw, 60px);
             transition: all 0.5s;
         }
         
         .portrait-left {
-            left: clamp(15px, 3vw, 40px);
+            left: clamp(10px, 3vw, 40px);
             opacity: 0.5;
         }
         
         .portrait-right {
-            right: clamp(15px, 3vw, 40px);
+            right: clamp(10px, 3vw, 40px);
             opacity: 0.5;
         }
         
