@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Aiye - Introduction</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            overflow: hidden; 
+            font-family: 'Courier New', monospace;
+            background: #000;
+        }
+        
+        #bg-video {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            object-fit: cover;
+            filter: brightness(0.4);
+        }
+        
+        .dialogue-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.7));
+            padding: 40px;
+            z-index: 10;
+            border-top: 3px solid #2E8CE0;
+        }
+        
+        .character-name {
+            font-size: 24px;
+            color: #00FF88;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
+        }
+        
+        .dialogue-text {
+            font-size: 20px;
+            color: #fff;
+            line-height: 1.8;
+            min-height: 120px;
+            max-width: 900px;
+        }
+        
+        .continue-prompt {
+            position: absolute;
+            bottom: 20px;
+            right: 40px;
+            color: #2E8CE0;
+            font-size: 14px;
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .skip-button {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(46, 140, 224, 0.2);
+            border: 2px solid #2E8CE0;
+            color: #fff;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            z-index: 20;
+        }
+        
+        .skip-button:hover {
+            background: rgba(46, 140, 224, 0.4);
+            transform: scale(1.05);
+        }
+        
+        .character-portrait {
+            position: fixed;
+            bottom: 250px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid #2E8CE0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            transition: all 0.5s;
+        }
+        
+        .portrait-left {
+            left: 40px;
+            opacity: 0.5;
+        }
+        
+        .portrait-right {
+            right: 40px;
+            opacity: 0.5;
+        }
+        
+        .portrait-active {
+            opacity: 1;
+            border-color: #00FF88;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.6);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <video id="bg-video" autoplay muted loop playsinline>
+        <source src="backvid.mp4" type="video/mp4">
+    </video>
+    
+    <button class="skip-button" onclick="skipDialogue()">SKIP ⏭</button>
+    
+    <div class="character-portrait portrait-left" id="portrait-femi">👨🏿‍🔬</div>
+    <div class="character-portrait portrait-right" id="portrait-omolara">👩🏿‍⚕️</div>
+    
+    <div class="dialogue-container">
+        <div class="character-name" id="character-name">Femi</div>
+        <div class="dialogue-text" id="dialogue-text"></div>
+        <div class="continue-prompt">▼ Click to continue</div>
+    </div>
+
+    <script>
+        const dialogues = [
+            { character: 'Femi', text: 'Omolara, have you seen the latest reports? The Amazon is losing 10,000 acres per day...', portrait: 'femi' },
+            { character: 'Omolara', text: 'I know, Femi. The ocean acidification levels are critical too. But people just see numbers. They don\'t feel it.', portrait: 'omolara' },
+            { character: 'Femi', text: 'Exactly! What if we could change that? What if you could understand the World through you?', portrait: 'femi' },
+            { character: 'Omolara', text: 'Through me? What do you mean?', portrait: 'omolara' },
+            { character: 'Femi', text: 'Imagine seeing Earth not as a planet, but as a living body. The Amazon as lungs. The oceans as veins. The atmosphere as skin.', portrait: 'femi' },
+            { character: 'Omolara', text: 'Like... a planetary operating room? Where we can diagnose and heal?', portrait: 'omolara' },
+            { character: 'Femi', text: 'Precisely! When the rainforest burns, you see lungs inflamed. When oceans acidify, you see veins corroding. Real-time. Visceral.', portrait: 'femi' },
+            { character: 'Omolara', text: 'And people could fund the restoration... like donating for surgery?', portrait: 'omolara' },
+            { character: 'Femi', text: 'Yes! Every dollar becomes medical equipment. Every donation heals an organ. We call it... Aiye.', portrait: 'femi' },
+            { character: 'Omolara', text: 'Aiye... "Earth" in Yoruba. I love it. Let\'s show them what empathy looks like.', portrait: 'omolara' }
+        ];
+        
+        let currentDialogue = 0;
+        const characterName = document.getElementById('character-name');
+        const dialogueText = document.getElementById('dialogue-text');
+        const portraitFemi = document.getElementById('portrait-femi');
+        const portraitOmolara = document.getElementById('portrait-omolara');
+        
+        // Preload and setup keyboard audio
+        const keyboardAudio = new Audio('keyboard.mp3');
+        keyboardAudio.loop = true;
+        keyboardAudio.volume = 0.3;
+        
+        function typeWriter(text, element, speed = 30) {
+            element.textContent = '';
+            let i = 0;
+            
+            // Start playing keyboard sound
+            keyboardAudio.currentTime = 0;
+            keyboardAudio.play().catch(e => console.log('Audio play prevented:', e));
+            
+            return new Promise((resolve) => {
+                function type() {
+                    if (i < text.length) {
+                        element.textContent += text.charAt(i);
+                        i++;
+                        setTimeout(type, speed);
+                    } else {
+                        // Stop keyboard sound when done
+                        keyboardAudio.pause();
+                        resolve();
+                    }
+                }
+                type();
+            });
+        }
+        
+        async function showDialogue(index) {
+            if (index >= dialogues.length) {
+                enterOperatingRoom();
+                return;
+            }
+            
+            const dialogue = dialogues[index];
+            characterName.textContent = dialogue.character;
+            
+            // Update portraits
+            if (dialogue.portrait === 'femi') {
+                portraitFemi.classList.add('portrait-active');
+                portraitOmolara.classList.remove('portrait-active');
+            } else {
+                portraitOmolara.classList.add('portrait-active');
+                portraitFemi.classList.remove('portrait-active');
+            }
+            
+            await typeWriter(dialogue.text, dialogueText);
+        }
+        
+        function nextDialogue() {
+            currentDialogue++;
+            showDialogue(currentDialogue);
+        }
+        
+        function skipDialogue() {
+            enterOperatingRoom();
+        }
+        
+        function enterOperatingRoom() {
+            document.querySelector('.dialogue-container').style.transition = 'opacity 1s';
+            document.querySelector('.dialogue-container').style.opacity = '0';
+            document.querySelector('.skip-button').style.opacity = '0';
+            portraitFemi.style.opacity = '0';
+            portraitOmolara.style.opacity = '0';
+            
+            setTimeout(() => {
+                window.location.href = 'code.html';
+            }, 1000);
+        }
+        
+        // Click anywhere to continue
+        document.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('skip-button') && audioInitialized) {
+                nextDialogue();
+            }
+        });
+        
+        // Spacebar to continue
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && audioInitialized) {
+                e.preventDefault();
+                nextDialogue();
+            }
+        });
+        
+        // Start first dialogue - wait for user interaction first
+        let audioInitialized = false;
+        
+        function initAudio() {
+            if (!audioInitialized) {
+                keyboardAudio.play().then(() => {
+                    keyboardAudio.pause();
+                    keyboardAudio.currentTime = 0;
+                    audioInitialized = true;
+                    showDialogue(0);
+                }).catch(e => console.log('Audio init:', e));
+            }
+        }
+        
+        // Wait for first click to initialize audio
+        document.addEventListener('click', initAudio, { once: true });
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                initAudio();
+            }
+        }, { once: true });
+        
+        // Ensure video plays
+        const video = document.getElementById('bg-video');
+        video.play().catch(e => console.log('Video autoplay prevented:', e));
+    </script>
+</body>
+</html>

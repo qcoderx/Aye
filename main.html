@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>The Titan: Normalized & Filled</title>
+    <style> 
+        body { margin: 0; background-color: #050505; overflow: hidden; } 
+        @keyframes slideDown { from { transform: translate(-50%, -100%); } to { transform: translate(-50%, 0); } }
+        @keyframes slideUp { from { transform: translate(-50%, 0); } to { transform: translate(-50%, -100%); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 10px rgba(46,140,224,0.3); } 50% { box-shadow: 0 0 30px rgba(46,140,224,0.8); } }
+        .inflamed { animation: pulse 2s infinite; }
+        #preview-panel { position: fixed; bottom: 20px; left: 20px; background: rgba(5,5,5,0.95); border: 1px solid #2E8CE0; padding: 15px; border-radius: 10px; }
+        #preview-panel button { background: #FF3300; border: none; padding: 8px 15px; color: #fff; border-radius: 5px; cursor: pointer; margin: 3px; font-family: 'Courier New', monospace; font-size: 11px; }
+        #preview-panel button:hover { background: #FF5522; }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { AiyeSystem } from './aiye-system.js';
+        import { quickValidate } from './aiye-tests.js';
+        import { AiyeUI } from './aiye-ui.js';
+
+        // Initialize UI immediately to apply styles
+        const ui = new AiyeUI();
+
+        // --- 1. SETUP ---
+        const scene = new THREE.Scene();
+        
+        // Camera setup
+        const camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.001, 100000);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setClearColor(0x000000, 0); // Transparent background
+        document.body.appendChild(renderer.domElement);
+
+        // --- 2. CONTROLS ---
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = false; 
+        controls.enablePan = true;
+        controls.enableZoom = true;
+        controls.zoomSpeed = 5.0;
+        controls.minDistance = 0.0001; 
+        controls.maxDistance = Infinity;
+        controls.target.set(0, 0, 0);
+
+        // --- 3. AIYE SYSTEM STORAGE ---
+        const organModels = { lungs: null, veins: null, skin: null };
+        let aiyeSystem = null;
+
+        // --- 4. MATERIAL ---
+        const hologramMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                glowColor: { value: new THREE.Color(0x2E8CE0) },
+                whiteColor: { value: new THREE.Color(0xFFFFFF) },
+                viewVector: { value: new THREE.Vector3() },
+                time: { value: 0.0 }
+            },
+            vertexShader: `
+                uniform vec3 viewVector;
+                varying float intensity;
+                varying vec3 vPosition;
+                void main() {
+                    vPosition = position;
+                    vec3 vNormal = normalize(normalMatrix * normal);
+                    vec3 vNormel = normalize(normalMatrix * viewVector);
+                    intensity = pow(0.65 - dot(vNormal, vNormel), 2.0); 
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 glowColor;
+                uniform vec3 whiteColor;
+                varying float intensity;
+                varying vec3 vPosition;
+                void main() {
+                    // Gridlines
+                    float gridSize = 5.0;
+                    float lineWidth = 0.15;
+                    vec3 grid = abs(fract(vPosition / gridSize - 0.5) - 0.5) / fwidth(vPosition / gridSize);
+                    float gridLine = min(min(grid.x, grid.y), grid.z);
+                    float gridStrength = 1.0 - min(gridLine / lineWidth, 1.0);
+                    
+                    vec3 mixedColor = mix(glowColor, whiteColor, 0.1);
+                    vec3 glow = mixedColor * (intensity * 1.2 + gridStrength * 1.0);
+                    float alpha = intensity * 0.3 + gridStrength * 0.5;
+                    gl_FragColor = vec4(glow, alpha); 
+                }
+            `,
+            side: THREE.DoubleSide,
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+            depthWrite: false
+        });
+
+        // --- 5. THE NORMALIZER ALGORITHM ---
+        const loader = new GLTFLoader();
+        loader.load('man.glb', (gltf) => {
+            const rawModel = gltf.scene;
+
+            // Structure
+            const pivot = new THREE.Group();
+            const rotator = new THREE.Group();
+            scene.add(pivot);
+            pivot.add(rotator);
+            rotator.add(rawModel);
+
+            // Apply Material to Man
+            rawModel.traverse((child) => {
+                if (child.isMesh) {
+                    child.geometry.computeVertexNormals();
+                    child.material = hologramMaterial;
+                }
+            });
+
+            // 1. Rotate to face camera
+            rotator.rotation.set(0, 0, 0); 
+            rotator.updateMatrixWorld(true);
+
+            // 2. Calculate Box
+            const box = new THREE.Box3();
+            box.setFromObject(rawModel); 
+
+            const size = new THREE.Vector3();
+            box.getSize(size);
+            const center = new THREE.Vector3();
+            box.getCenter(center);
+
+            // --- LOAD LUNGS ---
+            loader.load('lungs.glb', (lungsGltf) => {
+                const lungsModel = lungsGltf.scene;
+                organModels.lungs = lungsModel;
+                
+                const lungsMaterial = hologramMaterial.clone();
+                lungsMaterial.uniforms.glowColor.value.setHex(0xFF4081);
+                
+                lungsModel.traverse((child) => {
+                    if (child.isMesh) {
+                        child.geometry.computeVertexNormals();
+                        child.material = lungsMaterial;
+                    }
+                });
+
+                const lungsBox = new THREE.Box3().setFromObject(lungsModel);
+                const lungsCenter = new THREE.Vector3();
+                lungsBox.getCenter(lungsCenter);
+                
+                const chestY = center.y + (size.y * 0.22);
+                lungsModel.scale.setScalar(2.5);
+                lungsModel.userData.originalScale = 2.5;
+                
+                lungsModel.position.set(
+                    center.x - lungsCenter.x,
+                    chestY - lungsCenter.y,
+                    center.z - lungsCenter.z
+                );
+
+                rotator.add(lungsModel);
+                checkAiyeInit();
+            });
+
+            // --- LOAD VEINS ---
+            loader.load('veins.glb', (veinsGltf) => {
+                const veinsModel = veinsGltf.scene;
+                organModels.veins = veinsModel;
+                
+                const veinsMaterial = new THREE.ShaderMaterial({
+                    uniforms: {
+                        redColor: { value: new THREE.Color(0xFF0000) },
+                        blueColor: { value: new THREE.Color(0x0000FF) }
+                    },
+                    vertexShader: `
+                        varying vec3 vPosition;
+                        void main() {
+                            vPosition = position;
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                        }
+                    `,
+                    fragmentShader: `
+                        uniform vec3 redColor;
+                        uniform vec3 blueColor;
+                        varying vec3 vPosition;
+                        void main() {
+                            float pattern = sin(vPosition.x * 2.0) * sin(vPosition.z * 2.0);
+                            vec3 color = pattern > 0.0 ? redColor : blueColor;
+                            gl_FragColor = vec4(color, 0.4);
+                        }
+                    `,
+                    side: THREE.DoubleSide,
+                    blending: THREE.AdditiveBlending,
+                    transparent: true,
+                    depthWrite: false
+                });
+                
+                veinsModel.traverse((child) => {
+                    if (child.isMesh) {
+                        child.geometry.computeVertexNormals();
+                        child.material = veinsMaterial;
+                    }
+                });
+
+                const veinsBox = new THREE.Box3().setFromObject(veinsModel);
+                const veinsSize = new THREE.Vector3();
+                veinsBox.getSize(veinsSize);
+                const veinsCenter = new THREE.Vector3();
+                veinsBox.getCenter(veinsCenter);
+                
+                const veinsScale = size.y / veinsSize.y;
+                veinsModel.scale.setScalar(veinsScale);
+                veinsModel.userData.originalScale = veinsScale;
+                
+                veinsModel.position.set(
+                    center.x - veinsCenter.x * veinsScale,
+                    center.y - veinsCenter.y * veinsScale,
+                    center.z - veinsCenter.z * veinsScale
+                );
+
+                rotator.add(veinsModel);
+                checkAiyeInit();
+            }, undefined, (error) => {
+                console.error('Error loading veins:', error);
+            });
+
+            // 3. Normalize Size
+            const TARGET_HEIGHT = 200.0;
+            const scaleFactor = TARGET_HEIGHT / size.y;
+            
+            pivot.scale.setScalar(scaleFactor);
+            pivot.updateMatrixWorld(true);
+
+            // 4. Recenter
+            // Recenter based on the man's geometry
+            const finalBox = new THREE.Box3().setFromObject(rawModel);
+            // Apply the pivot's transform to the box logic conceptually, 
+            // but simpler: just move pivot so the man's center is at 0,0,0
+            
+            // We need the center of the man in World Space after scaling
+            // Since pivot is at 0,0,0 and scaled:
+            const scaledCenter = center.clone().multiplyScalar(scaleFactor);
+            pivot.position.sub(scaledCenter);
+
+            // 5. FIT TO SCREEN (Relative Size)
+            const vFOV = THREE.MathUtils.degToRad(camera.fov);
+            const dist = (TARGET_HEIGHT / 2) / Math.tan(vFOV / 2);
+
+            camera.position.set(0, 0, -dist); 
+            
+            controls.target.set(0, 0, 0);
+            controls.update();
+
+            // Store skin reference (the main body is the skin)
+            organModels.skin = rawModel;
+            checkAiyeInit();
+
+        }, undefined, (error) => {
+            console.error('Error:', error);
+        });
+
+        // --- 6. INITIALIZE AIYE SYSTEM ---
+        function checkAiyeInit() {
+            if (organModels.lungs && organModels.veins && organModels.skin && !aiyeSystem) {
+                aiyeSystem = new AiyeSystem(scene, organModels);
+                console.log('🌍 Aiye System Initialized');
+                setupOrganInteractions();
+            }
+        }
+
+        // --- ORGAN INTERACTIONS ---
+        let globalHoveredOrgan = null; // Store globally
+        
+        function setupOrganInteractions() {
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            // Map organ models to their types
+            const organTypeMap = new Map([
+                [organModels.lungs, 'Lungs'],
+                [organModels.veins, 'Veins'],
+                [organModels.skin, 'Skin']
+            ]);
+
+            renderer.domElement.addEventListener('mousemove', (e) => {
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects([organModels.lungs, organModels.veins, organModels.skin], true);
+                
+                let foundOrgan = null;
+                if (intersects.length > 0) {
+                    // Priority: lungs > veins > skin
+                    for (const intersect of intersects) {
+                        let obj = intersect.object;
+                        while (obj) {
+                            if (obj === organModels.lungs) {
+                                foundOrgan = Array.from(aiyeSystem.organs.values()).find(o => o.type === 'Lungs');
+                                break;
+                            }
+                            obj = obj.parent;
+                        }
+                        if (foundOrgan) break;
+                    }
+                    
+                    if (!foundOrgan) {
+                        for (const intersect of intersects) {
+                            let obj = intersect.object;
+                            while (obj) {
+                                if (obj === organModels.veins) {
+                                    foundOrgan = Array.from(aiyeSystem.organs.values()).find(o => o.type === 'Veins');
+                                    break;
+                                }
+                                obj = obj.parent;
+                            }
+                            if (foundOrgan) break;
+                        }
+                    }
+                    
+                    if (!foundOrgan) {
+                        for (const intersect of intersects) {
+                            let obj = intersect.object;
+                            while (obj) {
+                                if (obj === organModels.skin) {
+                                    foundOrgan = Array.from(aiyeSystem.organs.values()).find(o => o.type === 'Skin');
+                                    break;
+                                }
+                                obj = obj.parent;
+                            }
+                            if (foundOrgan) break;
+                        }
+                    }
+                }
+                
+                if (foundOrgan && foundOrgan !== globalHoveredOrgan) {
+                    globalHoveredOrgan = foundOrgan;
+                    aiyeSystem.ui.showOrganInfo(globalHoveredOrgan);
+                    console.log('Hovering:', globalHoveredOrgan.name);
+                } else if (!foundOrgan && globalHoveredOrgan) {
+                    globalHoveredOrgan = null;
+                    aiyeSystem.ui.hideOrganInfo();
+                }
+            });
+
+            renderer.domElement.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const rect = renderer.domElement.getBoundingClientRect();
+                mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+                
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects([organModels.lungs, organModels.veins, organModels.skin], true);
+                
+                globalHoveredOrgan = null;
+                if (intersects.length > 0) {
+                    for (const intersect of intersects) {
+                        let obj = intersect.object;
+                        while (obj) {
+                            if (obj === organModels.lungs) {
+                                globalHoveredOrgan = Array.from(aiyeSystem.organs.values()).find(o => o.type === 'Lungs');
+                                break;
+                            }
+                            obj = obj.parent;
+                        }
+                        if (globalHoveredOrgan) break;
+                    }
+                    
+                    if (!globalHoveredOrgan) {
+                        for (const intersect of intersects) {
+                            let obj = intersect.object;
+                            while (obj) {
+                                if (obj === organModels.veins) {
+                                    globalHoveredOrgan = Array.from(aiyeSystem.organs.values()).find(o => o.type === 'Veins');
+                                    break;
+                                }
+                                obj = obj.parent;
+                            }
+                            if (globalHoveredOrgan) break;
+                        }
+                    }
+                    
+                    if (!globalHoveredOrgan) {
+                        for (const intersect of intersects) {
+                            let obj = intersect.object;
+                            while (obj) {
+                                if (obj === organModels.skin) {
+                                    globalHoveredOrgan = Array.from(aiyeSystem.organs.values()).find(o => o.type === 'Skin');
+                                    break;
+                                }
+                                obj = obj.parent;
+                            }
+                            if (globalHoveredOrgan) break;
+                        }
+                    }
+                }
+            });
+            
+            renderer.domElement.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                const amount = e.dataTransfer.getData('amount');
+                console.log('Dropped! Amount:', amount, 'Organ:', globalHoveredOrgan);
+                
+                if (amount && globalHoveredOrgan) {
+                    // Show redirecting toast
+                    ui.showNotification(`💳 Redirecting to payment gateway...`, 'success');
+                    
+                    // Redirect after brief delay
+                    setTimeout(() => {
+                        window.location.href = `payment.html?amount=${amount}&organ=${encodeURIComponent(globalHoveredOrgan.name)}`;
+                    }, 800);
+                } else {
+                    console.log('Missing amount or organ!');
+                }
+            });
+        }
+
+        // --- 7. RENDER ---
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
+            
+            hologramMaterial.uniforms.viewVector.value.subVectors(camera.position, new THREE.Vector3(0,0,0));
+            hologramMaterial.uniforms.time.value = time;
+            
+            // Update Aiye system animations
+            if (aiyeSystem) {
+                aiyeSystem.update(time);
+            }
+            
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Check for successful payment return
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('payment') === 'success') {
+            const amount = parseInt(urlParams.get('amount'));
+            const organName = urlParams.get('organ');
+            
+            // Update organ funding in aiye system
+            if (aiyeSystem) {
+                const organ = Array.from(aiyeSystem.organs.values()).find(o => o.name === organName);
+                if (organ) {
+                    organ.currentFundingUSD = (organ.currentFundingUSD || 0) + amount;
+                    organ.fundingPercentage = (organ.currentFundingUSD / organ.targetFundingUSD) * 100;
+                    
+                    // Update hover card if currently showing
+                    if (globalHoveredOrgan && globalHoveredOrgan.name === organName) {
+                        ui.showOrganInfo(organ);
+                    }
+                }
+            }
+            
+            setTimeout(() => {
+                ui.showNotification(`✅ Payment successful! $${amount} donated to ${organName}`, 'success');
+            }, 1000);
+        }
+
+        // Make aiyeSystem global for preview
+        window.aiyeSystem = null;
+        const originalCheckAiyeInit = checkAiyeInit;
+        checkAiyeInit = function() {
+            originalCheckAiyeInit();
+            window.aiyeSystem = aiyeSystem;
+        };
+    </script>
+</body>
+</html>

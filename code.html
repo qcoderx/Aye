@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aiye - Earth is the Patient</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#0b1a2b", // Deep oceanic blue
+                        "glass": "rgba(11, 26, 43, 0.7)",
+                        "glass-border": "rgba(255, 255, 255, 0.1)",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"],
+                        "serif": ["Playfair Display", "serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1a2b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #283039; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b4754; 
+        }
+
+        .glass-panel {
+            background: rgba(17, 25, 40, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .prismatic-text {
+            background: linear-gradient(135deg, #fff 0%, #a5f3fc 50%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .prismatic-border {
+            position: relative;
+        }
+        .prismatic-border::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(19, 127, 236, 0.5), rgba(255,255,255,0.1));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+        
+        /* Subtle pulse animation for vital signs */
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; text-shadow: 0 0 10px rgba(11, 218, 91, 0.5); }
+            50% { opacity: 0.7; text-shadow: 0 0 2px rgba(11, 218, 91, 0.2); }
+        }
+        .animate-vital {
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+        .animate-vital-warn {
+            animation: pulse-glow 3s infinite ease-in-out;
+            animation-name: pulse-glow-warn;
+        }
+        @keyframes pulse-glow-warn {
+            0%, 100% { opacity: 1; text-shadow: 0 0 10px rgba(250, 98, 56, 0.5); }
+            50% { opacity: 0.7; text-shadow: 0 0 2px rgba(250, 98, 56, 0.2); }
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111418] dark:text-white font-display overflow-x-hidden transition-colors duration-200">
+<!-- Ambient Background Effects -->
+<div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+<div class="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[100px]"></div>
+</div>
+<div class="relative z-10 flex flex-col min-h-screen">
+<!-- Navigation -->
+<header class="fixed top-0 w-full z-50 glass-panel border-b-0 border-b-white/5 px-6 py-4 lg:px-10">
+<div class="max-w-[1280px] mx-auto flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-8 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined !text-[32px]">planet</span>
+</div>
+<h2 class="text-white text-xl font-bold tracking-tight">Aiye</h2>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="#">Diagnosis</a>
+<a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="#">Mission</a>
+<a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="#">Science</a>
+<a class="text-white/70 hover:text-white text-sm font-medium transition-colors" href="#">Partners</a>
+</nav>
+<button onclick="window.location.href='main.html'" class="hidden sm:flex group relative overflow-hidden rounded-full bg-primary/20 hover:bg-primary/30 text-white text-sm font-bold px-6 py-2.5 transition-all duration-300 border border-primary/40 shadow-[0_0_15px_rgba(19,127,236,0.2)] hover:scale-105">
+<span class="relative z-10 flex items-center gap-2">
+<span>Enter Operating Room</span>
+<span class="material-symbols-outlined !text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</span>
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+</button>
+<button class="md:hidden text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<!-- Hero Section -->
+<main class="flex-grow pt-24 lg:pt-32 px-4 md:px-10 pb-10 flex flex-col items-center">
+<div class="max-w-[1280px] w-full flex flex-col lg:flex-row gap-12 items-center">
+<!-- Hero Content -->
+<div class="flex-1 flex flex-col gap-6 z-10 text-center lg:text-left">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 w-fit mx-auto lg:mx-0 backdrop-blur-sm">
+<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+<span class="text-xs font-medium text-white/80 tracking-wide uppercase">System Monitoring Active</span>
+</div>
+<h1 class="font-serif text-5xl md:text-7xl lg:text-8xl font-medium leading-[1.1] tracking-tight text-white drop-shadow-2xl">
+                        <span id="typing-text"></span><span id="cursor" class="animate-pulse">|</span>
+</h1>
+<p class="text-lg md:text-xl text-blue-100/70 max-w-xl font-light leading-relaxed mx-auto lg:mx-0">
+                        A living diagnosis of our planetary systems through 3D anatomical mapping. Observe the vital signs of our world in real-time.
+                    </p>
+<div class="flex flex-col sm:flex-row gap-4 pt-4 justify-center lg:justify-start">
+<button onclick="window.location.href='main.html'" class="relative overflow-hidden rounded-lg bg-primary hover:bg-blue-600 text-white text-base font-bold px-8 py-4 transition-all shadow-[0_0_30px_rgba(19,127,236,0.3)] hover:shadow-[0_0_40px_rgba(19,127,236,0.5)] hover:scale-105 duration-300">
+                            Enter Operating Room
+                        </button>
+<button class="flex items-center justify-center gap-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-base font-medium px-8 py-4 transition-all backdrop-blur-sm">
+<span class="material-symbols-outlined">play_circle</span>
+                            Watch Demo
+                        </button>
+</div>
+<!-- Mini Stats for Hero -->
+<div class="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/10">
+<div>
+<p class="text-xs text-blue-200/50 uppercase tracking-wider">Status</p>
+<p class="text-lg font-bold text-white flex items-center gap-1">
+<span class="material-symbols-outlined text-red-500 !text-sm animate-pulse">emergency</span>
+                                Critical
+                            </p>
+</div>
+<div>
+<p class="text-xs text-blue-200/50 uppercase tracking-wider">Systems</p>
+<p class="text-lg font-bold text-white">3 Organs</p>
+</div>
+<div>
+<p class="text-xs text-blue-200/50 uppercase tracking-wider">Live Data</p>
+<p class="text-lg font-bold text-white flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                Active
+                            </p>
+</div>
+</div>
+</div>
+<!-- 3D Visualization Placeholder -->
+<div class="flex-1 w-full max-w-[600px] aspect-square relative group perspective-1000">
+<!-- Central Sphere/Planet Representation -->
+<div class="absolute inset-0 rounded-full bg-gradient-radial from-blue-400/20 to-transparent blur-3xl animate-pulse"></div>
+<div class="relative w-full h-full rounded-full prismatic-border bg-black/20 backdrop-blur-sm flex items-center justify-center overflow-hidden shadow-[0_0_100px_rgba(19,127,236,0.15)]">
+<img alt="Earth visualization" class="w-full h-full object-cover opacity-60 mix-blend-screen scale-110 group-hover:scale-105 transition-transform duration-[20s] ease-linear" data-alt="Abstract blue marble globe representing earth from space, translucent and glowing" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGyetXvT4F4MA3yh83XUchnoifz04-GW7S3mI9Bno9gcYHTYWQZSNL00fSunS0uhLBLfqhsl3Ek20ygamljJLtSV-IS0mXPo1Gk89rg3pYVprU1dmpl8p8ptqxqdjjX7LkNOOGwoMYiEK-z7N0oOJJyUA2G-QDhs1JUiS2RS_8GQNUnt0IA3e7_xV5VDRw5q0Df6iwXfB-2ZKwvq8AsWtGoaROJO9ZQMLF2mCKgJqJXDxczemK8FEdQrNyvjS0ysNc2bfjdZ_zGZ4"/>
+<!-- Overlay UI elements simulating HUD -->
+<div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+<div class="absolute top-[20%] right-[15%] flex flex-col items-end">
+<div class="h-[1px] w-12 bg-white/30 mb-1"></div>
+<span class="text-[10px] text-white/70 font-mono uppercase">Atmosphere</span>
+</div>
+<div class="absolute bottom-[30%] left-[15%] flex flex-col items-start">
+<div class="h-[1px] w-12 bg-white/30 mb-1"></div>
+<span class="text-[10px] text-white/70 font-mono uppercase">Hydrosphere</span>
+</div>
+<!-- Floating Scanning Line -->
+<div class="absolute inset-0 bg-gradient-to-b from-transparent via-primary/20 to-transparent h-[20%] w-full animate-[scan_4s_ease-in-out_infinite] pointer-events-none"></div>
+</div>
+</div>
+</div>
+<!-- Vitals Grid -->
+<div class="w-full max-w-[1280px] mt-24 mb-10">
+<div class="flex items-center gap-4 mb-8">
+<h3 class="text-white text-xl font-bold">Planetary Vitals</h3>
+<div class="h-[1px] flex-1 bg-white/10"></div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Card 1 -->
+<div class="glass-panel p-6 rounded-xl flex flex-col gap-2 hover:bg-white/5 transition-colors group">
+<div class="flex justify-between items-start">
+<p class="text-blue-200/70 text-sm font-medium">Global Temp</p>
+<span class="material-symbols-outlined text-white/40 group-hover:text-primary transition-colors">thermostat</span>
+</div>
+<div class="flex items-baseline gap-2 mt-2">
+<p class="text-white text-3xl font-light tracking-tight">+1.1°C</p>
+<p class="text-[#0bda5b] text-xs font-bold bg-[#0bda5b]/10 px-1.5 py-0.5 rounded animate-vital">+0.2%</p>
+</div>
+<div class="w-full bg-white/10 h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-gradient-to-r from-green-400 to-yellow-400 h-full w-[70%]"></div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="glass-panel p-6 rounded-xl flex flex-col gap-2 hover:bg-white/5 transition-colors group">
+<div class="flex justify-between items-start">
+<p class="text-blue-200/70 text-sm font-medium">CO2 Levels</p>
+<span class="material-symbols-outlined text-white/40 group-hover:text-primary transition-colors">cloud</span>
+</div>
+<div class="flex items-baseline gap-2 mt-2">
+<p class="text-white text-3xl font-light tracking-tight">419 ppm</p>
+<p class="text-[#fa6238] text-xs font-bold bg-[#fa6238]/10 px-1.5 py-0.5 rounded animate-vital-warn">+0.5%</p>
+</div>
+<div class="w-full bg-white/10 h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-gradient-to-r from-yellow-400 to-red-500 h-full w-[85%]"></div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="glass-panel p-6 rounded-xl flex flex-col gap-2 hover:bg-white/5 transition-colors group">
+<div class="flex justify-between items-start">
+<p class="text-blue-200/70 text-sm font-medium">Ocean pH</p>
+<span class="material-symbols-outlined text-white/40 group-hover:text-primary transition-colors">water_drop</span>
+</div>
+<div class="flex items-baseline gap-2 mt-2">
+<p class="text-white text-3xl font-light tracking-tight">8.1</p>
+<p class="text-[#fa6238] text-xs font-bold bg-[#fa6238]/10 px-1.5 py-0.5 rounded animate-vital-warn">-0.1%</p>
+</div>
+<div class="w-full bg-white/10 h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-gradient-to-r from-blue-400 to-indigo-500 h-full w-[60%]"></div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="glass-panel p-6 rounded-xl flex flex-col gap-2 hover:bg-white/5 transition-colors group">
+<div class="flex justify-between items-start">
+<p class="text-blue-200/70 text-sm font-medium">Forest Cover</p>
+<span class="material-symbols-outlined text-white/40 group-hover:text-primary transition-colors">forest</span>
+</div>
+<div class="flex items-baseline gap-2 mt-2">
+<p class="text-white text-3xl font-light tracking-tight">31%</p>
+<p class="text-[#fa6238] text-xs font-bold bg-[#fa6238]/10 px-1.5 py-0.5 rounded animate-vital-warn">-0.4%</p>
+</div>
+<div class="w-full bg-white/10 h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-gradient-to-r from-green-500 to-emerald-700 h-full w-[45%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Biological Mapping Section -->
+<div class="w-full max-w-[1280px] py-16 lg:py-24">
+<div class="flex flex-col lg:flex-row gap-12 items-start">
+<div class="lg:w-1/3 sticky top-32">
+<h2 class="font-serif text-4xl md:text-5xl font-medium text-white mb-6 leading-tight">
+                            Biological <br/><span class="text-primary italic">Mapping</span>
+</h2>
+<p class="text-blue-100/70 text-lg mb-8 leading-relaxed">
+                            Just as the human body relies on interconnected systems to survive, so does the Earth. We visualize these critical networks as living organs to better understand their health and impact.
+                        </p>
+<button class="text-white text-sm font-bold flex items-center gap-2 hover:gap-3 transition-all group">
+                            Explore Full Anatomy
+                            <span class="material-symbols-outlined text-primary group-hover:text-white transition-colors">arrow_right_alt</span>
+</button>
+</div>
+<div class="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Mapping Card 1 -->
+<div class="glass-panel rounded-2xl overflow-hidden hover:border-primary/50 transition-colors group">
+<div class="h-48 overflow-hidden relative">
+<div class="absolute inset-0 bg-gradient-to-t from-[#111928] to-transparent z-10"></div>
+<img alt="Forest" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Mist covering a dense green forest canopy from above" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1XKnupxjkNK7SOJMBFoPCOpVSwfPK8wHqRraP-NqteIlHRX8L-vwU8YwCghKnITUW2kWJYR_PESQg_MoZud4Acb_LeNSTmV_g7mnbF6DDftvrvizulZsNp0a8qyoLoNFYWJn-uyUl6Zeg7zEg2gmp8DtjZdyPwpswZIVULBNv-UEDh0SIeVVJXwDWDaf2AZWX24Ekofctl22cGllIZ63BvYVAEk10uvNkQMYc7dOK3vYUz9VgPUAt3xTUfuqNUcffEnhnM3AFpGE"/>
+<div class="absolute top-4 right-4 z-20 bg-black/40 backdrop-blur-md p-2 rounded-full border border-white/10 text-white">
+<span class="material-symbols-outlined">air</span>
+</div>
+</div>
+<div class="p-6">
+<h3 class="text-white text-xl font-bold mb-2">The Respiratory System</h3>
+<p class="text-blue-200/60 text-sm leading-relaxed mb-4">
+                                    The Amazon rainforest and boreal forests function as the lungs of the planet, regulating carbon and oxygen cycles essential for life.
+                                </p>
+<div class="flex items-center gap-2 text-xs font-mono text-primary uppercase tracking-wide">
+<span class="size-2 rounded-full bg-primary"></span>
+<span>Monitoring Active</span>
+</div>
+</div>
+</div>
+<!-- Mapping Card 2 -->
+<div class="glass-panel rounded-2xl overflow-hidden hover:border-primary/50 transition-colors group">
+<div class="h-48 overflow-hidden relative">
+<div class="absolute inset-0 bg-gradient-to-t from-[#111928] to-transparent z-10"></div>
+<img alt="Ocean" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Deep blue ocean waves with sunlight reflecting on the surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2LLNJbqCy-XwMXyHLAwy_Xrv0gLYDFtEukoWhQXvHOX654iaNJ9ooJ_lcjrAHANwWYKTh-_pFkSW6uIr4DzKMpQZNiC3iobXQwA8lf5f1mk9zUCr9NgtoYH6dM3-fG5-VDNWgAd_UlpnH-qBQXvm8jWyDAGSn-sU184-8JTTPHbMC9RdwW_fVzKFqIIDfrITJkRlrD4IDPavxouwVdeMJuqIAq1CjTVI826DO5BsKRYngNNR7X1nLrUlTO_XQoDbTITnR_P34lA4"/>
+<div class="absolute top-4 right-4 z-20 bg-black/40 backdrop-blur-md p-2 rounded-full border border-white/10 text-white">
+<span class="material-symbols-outlined">waves</span>
+</div>
+</div>
+<div class="p-6">
+<h3 class="text-white text-xl font-bold mb-2">The Circulatory System</h3>
+<p class="text-blue-200/60 text-sm leading-relaxed mb-4">
+                                    Ocean currents act as the planetary bloodstream, distributing heat and nutrients across the globe to regulate climate stability.
+                                </p>
+<div class="flex items-center gap-2 text-xs font-mono text-primary uppercase tracking-wide">
+<span class="size-2 rounded-full bg-primary"></span>
+<span>Monitoring Active</span>
+</div>
+</div>
+</div>
+<!-- Mapping Card 3 -->
+<div class="glass-panel rounded-2xl overflow-hidden hover:border-primary/50 transition-colors group md:col-span-2">
+<div class="h-48 overflow-hidden relative">
+<div class="absolute inset-0 bg-gradient-to-t from-[#111928] to-transparent z-10"></div>
+<img alt="Roots" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Network of roots or mycelium glowing in dark soil" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAB-Xg4T8BFLd7BNr7ze_z9tpR47-eIHUQwgdFZM-chYf_doCT4lgnbuLvDmHIN0GNzOxiKhf8MgQ9gSarSk2W4lttGU-3JslItXsfRGOGFDRcZnS9lVLo8Sg8LmnKgPlgvvQYnRuFVdAJOlH44o5lKxj7rc2wf4u-NjSmjFqwCMa0zIOoKwiNcSvzh8ezkM5iLqGKFe7GDqDpEa-a27HzoqTSBzr4io3kU8GMvmeYFEl39zmbzatAJPhGj6CLrQwn6P_uoM8sNNC8"/>
+<div class="absolute top-4 right-4 z-20 bg-black/40 backdrop-blur-md p-2 rounded-full border border-white/10 text-white">
+<span class="material-symbols-outlined">hub</span>
+</div>
+</div>
+<div class="p-6 flex flex-col md:flex-row gap-6 items-start md:items-center">
+<div class="flex-1">
+<h3 class="text-white text-xl font-bold mb-2">The Nervous System</h3>
+<p class="text-blue-200/60 text-sm leading-relaxed">
+                                        Biodiversity networks behave like neural synapses, transmitting information and resilience through complex ecosystems to adapt to change.
+                                    </p>
+</div>
+<div class="flex items-center gap-2 text-xs font-mono text-primary uppercase tracking-wide whitespace-nowrap">
+<span class="size-2 rounded-full bg-primary"></span>
+<span>Monitoring Active</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Alerts / Regions -->
+<div class="w-full max-w-[1280px] py-10">
+<div class="flex justify-between items-end mb-6">
+<h3 class="text-white text-2xl font-bold">Regional Diagnostics</h3>
+<a class="text-sm text-primary hover:text-white transition-colors" href="#">View All Regions</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+<!-- Alert 1 -->
+<div class="flex items-center gap-4 p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
+<div class="size-16 rounded-lg overflow-hidden bg-gray-800 flex-shrink-0">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform" data-alt="Aerial view of Amazon river winding through dense rainforest" data-location="Amazon Basin" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjUQb9-IrDNq0-w_B73BLb7j2SCz2-ro9lOUGn8-hc455YV866fIc6iysZSU1eGQ2LrRu_khdJ3AB54vk04VBBN7oswrmN64KXfxusHveXxeHMU098MZ8HvxSrET7v7phns-CwSfwIS_Di0RhO4AauwjX14dasSHeLIBbuUh7kMVGvgeoA4kNAGaQAdOzP4pY0Ax0qztIpaGNmgV-O4Dn1159ZoAkcUiU5gFdnSJLtRMOYsdGhW71G7C9fepzFYJiu374r0Y0HGfQ"/>
+</div>
+<div>
+<p class="text-white font-bold text-base">Amazon Basin</p>
+<p class="text-red-400 text-xs mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined !text-[14px]">warning</span>
+                                Critical Status
+                            </p>
+</div>
+</div>
+<!-- Alert 2 -->
+<div class="flex items-center gap-4 p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
+<div class="size-16 rounded-lg overflow-hidden bg-gray-800 flex-shrink-0">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform" data-alt="Blue ocean waves representing the gulf stream" data-location="Atlantic Ocean" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8axYhV5WmUBKQXeuZ0DN6KVPwOLDAc3WU9TBZsy1BdoJj94TMDxKgI-9zdDJbKyO9r6pUzRXQltVjcRzXaxFMcm3HKy2V3DIzs2op_ZgiF74nmKCp91njy_z6CfSgenq-MAyDPJKpVM0CnMqwja6ATZA8wF-TCNNAZuOTV6kkRd3826hgSQ69nJvBDriXODixizx0zyCBL79-ldFuJmv4yZ_gsJpU6nZvN6oZO7EXNVLPcRj2fcMZOHTt4Rkv7tyCrypQvfaW2yo"/>
+</div>
+<div>
+<p class="text-white font-bold text-base">Gulf Stream</p>
+<p class="text-[#0bda5b] text-xs mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined !text-[14px]">check_circle</span>
+                                Stable Flow
+                            </p>
+</div>
+</div>
+<!-- Alert 3 -->
+<div class="flex items-center gap-4 p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
+<div class="size-16 rounded-lg overflow-hidden bg-gray-800 flex-shrink-0">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform" data-alt="Colorful coral reef underwater" data-location="Great Barrier Reef" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCROKAYW1Ym-eDjc8V_GArt6oBZQHAounRAGJ8PpF9_hsrwLZNknZK9aTX6CPm2bcoVcOfcZVjFivb74PvYvkQxwn9MifzfKG3JOQ8CJYmu9FxWcoiFUyD2C-p8ayg2FB-0fANBh0I-eum57MCs8iN1OHTX8fpphgBhyxubz-Ogf9F9ApV1yOXUsIC0sbSeJjQ06P4Vu89_nTuP6VL5hwwEIsRBUWjgPVzL9Moj7qwlmBr0SCGLxq9jtEWfneCZMMrwrU4b5TxXCY8"/>
+</div>
+<div>
+<p class="text-white font-bold text-base">Coral Reefs</p>
+<p class="text-yellow-500 text-xs mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined !text-[14px]">info</span>
+                                Bleaching Alert
+                            </p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="border-t border-white/10 bg-[#08121e] py-12 px-6 lg:px-10">
+<div class="max-w-[1280px] mx-auto flex flex-col md:flex-row justify-between items-start gap-10">
+<div class="flex flex-col gap-4 max-w-sm">
+<div class="flex items-center gap-2 text-white">
+<span class="material-symbols-outlined">planet</span>
+<h2 class="text-lg font-bold">Aiye</h2>
+</div>
+<p class="text-blue-200/50 text-sm leading-relaxed">
+                        Aiye is a planetary health platform dedicated to visualizing and healing Earth's critical systems through advanced data diagnostics.
+                    </p>
+</div>
+<div class="flex flex-wrap gap-12 text-sm">
+<div class="flex flex-col gap-3">
+<h4 class="text-white font-bold">Platform</h4>
+<a class="text-blue-200/50 hover:text-primary transition-colors" href="#">Methodology</a>
+<a class="text-blue-200/50 hover:text-primary transition-colors" href="#">Data Sources</a>
+<a class="text-blue-200/50 hover:text-primary transition-colors" href="#">Partners</a>
+</div>
+<div class="flex flex-col gap-3">
+<h4 class="text-white font-bold">Company</h4>
+<a class="text-blue-200/50 hover:text-primary transition-colors" href="#">About Us</a>
+<a class="text-blue-200/50 hover:text-primary transition-colors" href="#">Careers</a>
+<a class="text-blue-200/50 hover:text-primary transition-colors" href="#">Contact</a>
+</div>
+<div class="flex flex-col gap-3">
+<h4 class="text-white font-bold">Legal</h4>
+<a class="text-blue-200/50 hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="text-blue-200/50 hover:text-primary transition-colors" href="#">Terms</a>
+</div>
+</div>
+</div>
+<div class="max-w-[1280px] mx-auto mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-blue-200/30">
+<p>© 2024 Aiye Earth Diagnostics. All rights reserved.</p>
+<div class="flex gap-4">
+<a class="hover:text-white transition-colors" href="#">Twitter</a>
+<a class="hover:text-white transition-colors" href="#">LinkedIn</a>
+<a class="hover:text-white transition-colors" href="#">Instagram</a>
+</div>
+</div>
+</footer>
+</div>
+<!-- Animation CSS for scan effect -->
+<style>
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+</style>
+
+<script>
+    // Typing effect for header
+    const text = "Earth is\nthe Patient";
+    const typingText = document.getElementById('typing-text');
+    const cursor = document.getElementById('cursor');
+    let index = 0;
+    
+    function type() {
+        if (index < text.length) {
+            const char = text.charAt(index);
+            if (char === '\n') {
+                typingText.innerHTML += '<br/>';
+            } else if (text.substring(index, index + 11) === 'the Patient') {
+                typingText.innerHTML += '<span class="prismatic-text italic">' + text.substring(index, index + 11) + '</span>';
+                index += 10;
+            } else {
+                typingText.textContent += char;
+            }
+            index++;
+            setTimeout(type, 100);
+        } else {
+            cursor.style.display = 'none';
+        }
+    }
+    
+    // Start typing after page load
+    window.addEventListener('load', () => {
+        setTimeout(type, 500);
+    });
+</script>
+</body></html>

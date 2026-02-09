@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Aiye Payment Gateway - Planetary Restoration Fund</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2a4a7c 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+            border: 2px solid #2E8CE0;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #2E8CE0;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 32px;
+            color: #00FF88;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #aaa;
+            font-size: 14px;
+        }
+        .payment-details {
+            background: rgba(46, 140, 224, 0.1);
+            border: 1px solid #2E8CE0;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label {
+            color: #aaa;
+            font-size: 14px;
+        }
+        .detail-value {
+            color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .amount-display {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00FF88;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        .amount-display .label {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .amount-display .amount {
+            font-size: 48px;
+            color: #00FF88;
+            font-weight: bold;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #2E8CE0;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #00FF88;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .payment-method {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #2E8CE0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .payment-method:hover {
+            background: rgba(46, 140, 224, 0.2);
+            border-color: #00FF88;
+            transform: translateY(-5px);
+        }
+        .payment-method.selected {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00FF88;
+        }
+        .payment-method .icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .payment-method .name {
+            font-size: 12px;
+            color: #aaa;
+        }
+        .btn-pay {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #00FF88 0%, #00CC6A 100%);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        .btn-pay:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+        }
+        .btn-pay:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        .security-badge {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+        .security-badge .icon {
+            color: #00FF88;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .security-badge .text {
+            color: #aaa;
+            font-size: 12px;
+        }
+        .equipment-info {
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid #FFA500;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .equipment-info h3 {
+            color: #FFA500;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .equipment-info ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .equipment-info li {
+            padding: 8px 0;
+            color: #ddd;
+            font-size: 14px;
+        }
+        .equipment-info li:before {
+            content: "✓ ";
+            color: #00FF88;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 Aiye Payment Gateway</h1>
+            <p>Secure Planetary Restoration Fund Transfer</p>
+        </div>
+
+        <div class="payment-details">
+            <div class="detail-row">
+                <span class="detail-label">Organ System</span>
+                <span class="detail-value" id="organ-name">Loading...</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Current Health Status</span>
+                <span class="detail-value" id="organ-health">--</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Transaction ID</span>
+                <span class="detail-value" id="transaction-id">--</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Date & Time</span>
+                <span class="detail-value" id="datetime">--</span>
+            </div>
+        </div>
+
+        <div class="equipment-info">
+            <h3>💊 Medical Equipment Funded</h3>
+            <ul id="equipment-list">
+                <li>Loading equipment details...</li>
+            </ul>
+        </div>
+
+        <div class="amount-display">
+            <div class="label">DONATION AMOUNT</div>
+            <div class="amount" id="amount-display">$0</div>
+        </div>
+
+        <form id="payment-form">
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" id="full-name" placeholder="John Doe" required>
+            </div>
+
+            <div class="form-group">
+                <label>Email Address *</label>
+                <input type="email" id="email" placeholder="john@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="tel" id="phone" placeholder="+1 (555) 000-0000" required>
+            </div>
+
+            <div class="form-group">
+                <label>Country *</label>
+                <select id="country" required>
+                    <option value="">Select Country</option>
+                    <option value="US">United States</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="CA">Canada</option>
+                    <option value="NG">Nigeria</option>
+                    <option value="KE">Kenya</option>
+                    <option value="ZA">South Africa</option>
+                    <option value="BR">Brazil</option>
+                    <option value="IN">India</option>
+                    <option value="CN">China</option>
+                    <option value="JP">Japan</option>
+                    <option value="AU">Australia</option>
+                    <option value="DE">Germany</option>
+                    <option value="FR">France</option>
+                </select>
+            </div>
+
+            <div class="payment-methods">
+                <div class="payment-method" data-method="card">
+                    <div class="icon">💳</div>
+                    <div class="name">Credit Card</div>
+                </div>
+                <div class="payment-method" data-method="paypal">
+                    <div class="icon">🅿️</div>
+                    <div class="name">PayPal</div>
+                </div>
+                <div class="payment-method" data-method="crypto">
+                    <div class="icon">₿</div>
+                    <div class="name">Crypto</div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-pay" id="pay-btn">
+                🔒 Complete Secure Payment
+            </button>
+        </form>
+
+        <div class="security-badge">
+            <div class="icon">🔐</div>
+            <div class="text">256-bit SSL Encryption | PCI DSS Compliant | Verified by Aiye Foundation</div>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const amount = params.get('amount') || '0';
+        const organ = params.get('organ') || 'Unknown Organ';
+
+        // Equipment mapping based on amount
+        const equipmentMap = {
+            50: ['Basic Air Quality Monitors (x5)', 'Soil Testing Kits (x10)', 'Water pH Test Strips (x100)'],
+            100: ['Advanced Air Purification Units (x2)', 'Portable Water Filtration Systems (x5)', 'Reforestation Seedling Kits (x50)'],
+            250: ['Industrial Carbon Capture Filters (x3)', 'Ocean Cleanup Drone (x1)', 'Solar-Powered Irrigation System (x2)'],
+            500: ['Satellite Environmental Monitoring System', 'Mobile Deforestation Detection Unit', 'Advanced Marine Life Tracking Equipment'],
+            1000: ['Autonomous Reforestation Drone Fleet (x5)', 'Industrial Waste Treatment Plant Module', 'Ocean Acidification Reversal System'],
+            5000: ['Complete Ecosystem Restoration Package', 'AI-Powered Climate Monitoring Station', 'Large-Scale Carbon Sequestration Infrastructure']
+        };
+
+        // Find closest equipment tier
+        const amountNum = parseInt(amount);
+        const tiers = Object.keys(equipmentMap).map(Number).sort((a, b) => a - b);
+        const tier = tiers.reduce((prev, curr) => 
+            Math.abs(curr - amountNum) < Math.abs(prev - amountNum) ? curr : prev
+        );
+
+        // Populate page
+        document.getElementById('amount-display').textContent = `$${amount}`;
+        document.getElementById('organ-name').textContent = organ;
+        document.getElementById('organ-health').innerHTML = '<span style="color: #FF6600;">⚠️ CRITICAL</span>';
+        document.getElementById('transaction-id').textContent = 'TXN-' + Date.now().toString(36).toUpperCase();
+        document.getElementById('datetime').textContent = new Date().toLocaleString();
+
+        // Populate equipment list
+        const equipmentList = document.getElementById('equipment-list');
+        equipmentList.innerHTML = equipmentMap[tier].map(item => `<li>${item}</li>`).join('');
+
+        // Payment method selection
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', () => {
+                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+                method.classList.add('selected');
+            });
+        });
+
+        // Form submission
+        document.getElementById('payment-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const selectedMethod = document.querySelector('.payment-method.selected');
+            if (!selectedMethod) {
+                alert('Please select a payment method');
+                return;
+            }
+
+            const btn = document.getElementById('pay-btn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Processing Payment...';
+
+            // Simulate payment processing
+            setTimeout(() => {
+                btn.textContent = '✅ Payment Successful!';
+                btn.style.background = 'linear-gradient(135deg, #00FF88 0%, #00CC6A 100%)';
+                
+                setTimeout(() => {
+                    window.location.href = 'main.html?payment=success&amount=' + amount + '&organ=' + encodeURIComponent(organ);
+                }, 2000);
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
