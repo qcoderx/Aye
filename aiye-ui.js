@@ -106,12 +106,28 @@ export class AiyeUI {
         const stateEmoji = { HEALTHY: '✅', INFLAMED: '🔥', HEALING: '🩹' }[organ.symptomState];
         info.innerHTML = `
             <h3>${stateEmoji} ${organ.name}</h3>
-            <p class="typing-text"><strong>Ecosystem:</strong> ${organ.type === 'Lungs' ? 'Amazon Rainforest' : organ.type === 'Veins' ? 'Ocean Currents' : 'Atmosphere/Soil'}</p>
+            <p><strong>Ecosystem:</strong> ${organ.type === 'Lungs' ? 'Amazon Rainforest' : organ.type === 'Veins' ? 'Ocean Currents' : 'Atmosphere/Soil'}</p>
             <p><strong>Health:</strong> ${organ.healthScore}%</p>
             <p><strong>Status:</strong> ${organ.symptomState}</p>
             <p><strong>Funding:</strong> $${organ.currentFundingUSD?.toLocaleString() || 0} / $${organ.targetFundingUSD?.toLocaleString() || 0}</p>
+            <p><strong>Diagnosis:</strong></p>
+            <p id="diagnosis-text" style="color: #00FF88; font-style: italic; min-height: 40px;"></p>
         `;
         info.style.display = 'block';
+        
+        // Typing effect for diagnosis
+        const diagnosisText = organ.diagnosis || 'No diagnosis available';
+        const diagnosisElement = document.getElementById('diagnosis-text');
+        let charIndex = 0;
+        
+        const typeInterval = setInterval(() => {
+            if (charIndex < diagnosisText.length) {
+                diagnosisElement.textContent += diagnosisText[charIndex];
+                charIndex++;
+            } else {
+                clearInterval(typeInterval);
+            }
+        }, 30);
     }
 
     hideOrganInfo() {
